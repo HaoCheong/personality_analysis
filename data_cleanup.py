@@ -19,7 +19,8 @@ def remove_punctuation(essays):
     return essays
 
 def main():
-    essays = pd.read_csv('essays.csv',encoding='cp1252')
+    
+    
 
     # Lower Case the given text
     essays = lower_casing(essays)
