@@ -34,8 +34,20 @@ def num_any_words(essays):
     essays['num_any_words'] = essays['TEXT'].apply((lambda x: len(remove_num(x).split(" "))))
     return essays
 
+# Count the number of unique words within a set
 def num_diff_words(essays):
     essays['num_diff_words'] = essays['TEXT'].apply(lambda x: len(set(x.split(" "))))
+    return essays
+
+# Count the number of sentence
+def num_sentences(essays):
+    essays['num_sentences'] = essays['TEXT'].apply(lambda x: len(x.split('.')))
+    return essays
+
+# Find the average sentence length
+# Need to review punctuation removal
+def avg_sentence_len(essays):
+    essays['avg_sentence_len'] = essays['TEXT'].apply((lambda x: float(len(remove_num(x).split(" "))/len(x.split('.')))))
     return essays
 
 def main():
