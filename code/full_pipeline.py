@@ -21,12 +21,20 @@ def main():
     essays = remove_long_white_space(essays)
 
     # Punctuation dependent feature extraction
-    essays = num_any_words(essays)
+    # Word need to split: word + stopword, just stop word, just word
+
     essays = num_sentences(essays)
     
-    # essays = avg_sentence_len(essays)
+    essays = remove_punctuation(essays)
+    essays = num_any_words(essays)
+
+    essays = remove_long_white_space(essays)
     # Stop word dependent feature extraction
 
+
+
+    essays = remove_stopwords(essays)
+    essays = remove_long_white_space(essays)
     # Remaining clean up
 
     print(essays.head(10))

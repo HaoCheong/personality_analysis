@@ -19,12 +19,12 @@ def remove_num(line):
 def remove_all_large_space(line):
     return re.sub(r' +', ' ', line.strip())
 
-# Lex Soph - Count long words
+# Lex Soph - Count long words (valued words)
 def num_long_words(essays):
     essays['num_long_words'] = essays['TEXT'].apply(lambda x: len((remove_all_large_space(re.sub(r'\b\w{1,5}\b', '', remove_num(x)))).split(" ")))
     return essays
 
-# Lex Soph - Count short words
+# Lex Soph - Count short words (valued words)
 def num_short_words(essays):
     essays['num_short_words'] = essays['TEXT'].apply(lambda x: len((remove_all_large_space(re.sub(r'\b\w{6,}\b', '', remove_num(x)))).split(" ")))
     return essays
