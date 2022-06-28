@@ -9,6 +9,8 @@ from nltk.corpus import stopwords
 import re
 stop = stopwords.words('english')
 
+pd.set_option('display.max_columns', None)
+
 def process_column(table, input_column, output_column, func):
     table[output_column] = table[input_column].apply(lambda x: func(x))
     return table

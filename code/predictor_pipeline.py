@@ -1,3 +1,6 @@
+# Runs a basic LinearSVC preddictor based on the properties of the model
+
+
 import numpy as np
 import pandas as pd
 import spacy
