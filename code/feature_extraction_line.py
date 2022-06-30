@@ -52,14 +52,8 @@ def num_diff_word_nstop(line):
 # Number of sentences (Tokenised based on ". ")
 # Need to include ?, ..., !, and other enders
 def num_sentences(line):
-    return len(line.split('. '))
+    return len(re.split(r'[(. )(! )(? )]', line))
 
 # Average sentences length (Total word count / sentence count)
 def avg_sentence_length(line):
     return float(num_any_word(line))/(num_sentences(line))
-
-def main():
-    pass
-
-if __name__ == "__main__":
-    main()
