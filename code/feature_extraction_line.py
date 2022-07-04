@@ -6,6 +6,7 @@
 import re
 from data_cleanup_line import *
 import pandas as pd
+import math 
 
 # --------Helpers--------
 def get_word_sylb_dict():
@@ -147,13 +148,87 @@ def num_syllables(line):
 
 # --------READABILITY INDEX--------
 def flesch_kincaid_grade_level(line):
-    num_nstop_word_var = num_nstop_word(line)
-    num_sentences_var = num_sentences(line)
-    num_syllables_var = num_syllables(line)
+    n_nstop = num_nstop_word(line)
+    n_sen = num_sentences(line)
+    n_sylb = num_syllables(line)
 
-    comp_1 = 0.39 * float(num_nstop_word_var/num_sentences_var)
-    comp_2 = 11.8 * float(num_syllables_var/num_nstop_word_var)
+    comp_1 = 0.39 * float(n_nstop/n_sen)
+    comp_2 = 11.8 * float(n_sylb/n_nstop)
     fkgl = float(comp_1 + comp_2 - 15.59)
     return fkgl
 
+def flesch_reading_ease(line):
+    n_nstop = num_nstop_word(line)
+    n_sen = num_sentences(line)
+    n_sylb = num_syllables(line)
+    comp_1 = 1.015 * float(n_nstop/n_sen)
+    comp_2 = 84.6 * float(n_sylb/n_nstop)
 
+    fre = float(206.835 - comp_1 - comp_2)
+    return fre
+    
+def automated_readability_index(line):
+    n_char = num_of_char(line)
+    n_any_word = num_any_word(line)
+    n_sen = num_sentences(line)
+
+    comp_1 = 4.71 * float(n_char/n_any_word)
+    comp_2 = 0.5 * float(n_any_word/n_sen)
+
+    ari = float(comp_1 + comp_2 - 21.43)
+    return ari
+
+def LIX_readability(line):
+    n_any_word = num_any_word(line)
+    n_long_word = num_long_words(line)
+    n_period = len(re.split(r'([\.:]|(\s[a-z]))',line))
+
+    comp_1 = float(n_any_word/n_period)
+    comp_2 = float((n_long_word * 100)/n_any_word)
+    lix = float(comp_1 + comp_2)
+
+    return lix
+
+# Might need to make efficient
+def dale_chall_readability(line):
+    newline = remove_num(line)
+    newline = remove_punctuation(newline)
+    newline = remove_all_large_space(newline)
+    word_list = newline.split()
+    
+    diffc_count = 0
+    with open('../data_set_master/DaleChallEasyWordList.txt','r') as f:
+        easy_words = f.read().splitlines()
+        for word in word_list:
+            if (word not in easy_words):
+                diffc_count = diffc_count + 1
+
+    n_sen = num_sentences(line)
+    n_any_word = num_any_word(line)
+    diffc_perc = (diffc_count/n_any_word) * 100
+
+    comp_1 = float(0.1579 * (diffc_perc))
+    comp_2 = float(0.0496 * (n_any_word/n_sen))
+    dcr = comp_1 + comp_2
+    if (diffc_perc > 5):
+        dcr = dcr + 3.6365 
+    
+    return dcr
+
+def SMOG_readability(line):
+    polysylb_word = 0
+    newline = remove_num(line)
+    newline = remove_punctuation(newline)
+    newline = remove_all_large_space(newline)
+    word_list = newline.split()
+
+    for word in word_list:
+        if ((word_sylb_dict.get(word) != None) and (word_sylb_dict[word] >= 3)):
+            polysylb_word = polysylb_word + 1
+    
+    print(polysylb_word)
+    smog = float(3 + math.sqrt(polysylb_word))
+    return smog
+
+
+        

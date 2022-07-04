@@ -59,8 +59,11 @@ def feature_extract(essays):
     essays = process_column(essays, 'TEXT', 'most_freq_sentence_length',most_freq_sentence_length)
 
     # Readability
+    essays = process_column(essays, 'TEXT', 'flesch_reading_ease',flesch_reading_ease)
     essays = process_column(essays, 'TEXT', 'flesch_kincaid_grade_level',flesch_kincaid_grade_level)
-
+    essays = process_column(essays, 'TEXT', 'automated_readability_index',automated_readability_index)
+    essays = process_column(essays, 'TEXT', 'LIX_readability',LIX_readability)
+    essays = process_column(essays, 'TEXT', 'dale_chall_readability',dale_chall_readability)
 
     return essays
 
@@ -73,11 +76,9 @@ def main():
     else:
         processed_essays = pd.read_csv('pre_processed.csv', encoding='utf-8')
     
-    test_line = processed_essays['TEXT'][5]
-
-    print(flesch_kincaid_grade_level(test_line))
+    # test_line = processed_essays['TEXT'][5]
+    # print(SMOG_readability(test_line))
     final_processed = feature_extract(processed_essays)
-
     print(final_processed.head(10))
 
     # final_processed.to_csv('final.csv', sep=',', encoding='utf-8', index = False)
