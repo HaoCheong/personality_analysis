@@ -5,10 +5,17 @@
 
 # Might need a freq_dict helper
 
+# Singleton pattern might reduce processing
+
 import re
 from data_cleanup_line import *
 import pandas as pd
 import math 
+import spacy as sp
+from nltk.corpus import stopwords
+
+nlp = sp.load('en_core_web_lg')
+stop = stopwords.words('english')
 
 # --------Helpers--------
 def get_word_sylb_dict():
@@ -26,6 +33,7 @@ word_sylb_dict = get_word_sylb_dict()
 
 
 # Number of characters (including stop words + punctuation)
+
 def num_of_char(line):
     newline = remove_all_space(line)
     return len(newline)
@@ -115,25 +123,39 @@ def most_freq_word_length(line):
 # Most frequent sentence length
 def most_freq_sentence_length(line):
     sentence_array = re.split(r'[.!?]{1}', line)
-    freq_dict = {}
+    sen_freq_dict = {}
     for sen in sentence_array:
         # print(sen)
-        if freq_dict.get(len(sen)) == None:
-            freq_dict[len(sen)] = 1
+        if sen_freq_dict.get(len(sen)) == None:
+            sen_freq_dict[len(sen)] = 1
         else:
-            freq_dict[len(sen)] = freq_dict[len(sen)] + 1
+            sen_freq_dict[len(sen)] = sen_freq_dict[len(sen)] + 1
     
     max_val = 0
     max_key = ""
-    for key in freq_dict.keys():
-        if freq_dict[key] > max_val and key != 1: #Mitigates the . . . sentences but might need future adjusting
-            max_val = freq_dict[key]
+    for key in sen_freq_dict.keys():
+        if sen_freq_dict[key] > max_val and key != 1: #Mitigates the . . . sentences but might need future adjusting
+            max_val = sen_freq_dict[key]
             max_key = key
     
     return max_key
 
 # Number of stop words
+def num_stop_words(line):
+    newline = remove_num(line)
+    newline = remove_punctuation(newline)
+    newline = remove_all_large_space(newline)
 
+    word_list = newline.split(" ")
+
+    stop_count = 0 
+    stop_list = []
+
+    for word in word_list:
+        if word in stop:
+            stop_list.append(word)
+
+    return stop_list 
 # Number of syllables, known words (Might need changing)
 def num_syllables(line):
     newline = remove_num(line)
@@ -149,6 +171,8 @@ def num_syllables(line):
     return total_sylb_count
 
 # --------READABILITY INDEX--------
+
+# Fletch Kincaid Grade Level
 def flesch_kincaid_grade_level(line):
     n_nstop = num_nstop_word(line)
     n_sen = num_sentences(line)
@@ -159,6 +183,7 @@ def flesch_kincaid_grade_level(line):
     fkgl = float(comp_1 + comp_2 - 15.59)
     return fkgl
 
+# Fletch Reading Ease Index
 def flesch_reading_ease(line):
     n_nstop = num_nstop_word(line)
     n_sen = num_sentences(line)
@@ -168,7 +193,8 @@ def flesch_reading_ease(line):
 
     fre = float(206.835 - comp_1 - comp_2)
     return fre
-    
+
+# Automated Readability Measure
 def automated_readability_index(line):
     n_char = num_of_char(line)
     n_any_word = num_any_word(line)
@@ -180,6 +206,7 @@ def automated_readability_index(line):
     ari = float(comp_1 + comp_2 - 21.43)
     return ari
 
+# LIX readability measure
 def LIX_readability(line):
     n_any_word = num_any_word(line)
     n_long_word = num_long_words(line)
@@ -191,7 +218,7 @@ def LIX_readability(line):
 
     return lix
 
-# Might need to make efficient
+# Dale Chall Reasabilitty Measure
 def dale_chall_readability(line):
     newline = remove_num(line)
     newline = remove_punctuation(newline)
@@ -217,6 +244,7 @@ def dale_chall_readability(line):
     
     return dcr
 
+# Simple Measure of Gobbledygook Readability Measure
 def SMOG_readability(line):
     polysylb_word = 0
     newline = remove_num(line)
@@ -228,18 +256,20 @@ def SMOG_readability(line):
         if ((word_sylb_dict.get(word) != None) and (word_sylb_dict[word] >= 3)):
             polysylb_word = polysylb_word + 1
     
-    # print(polysylb_word)
     smog = float(3 + math.sqrt(polysylb_word))
     return smog
 
 
 # ---------- LEXICAL DIVERSITY ----------
+
+# The ratio of unique words used
 def type_token_ratio(line):
     return float(num_diff_word_stop(line)/num_any_word(line))
 
+# Hapax Legomena, count number of words used once
 def hapax_legomena(line):
 
-    freq_dict = {}
+    word_freq_dict = {}
 
     newline = remove_num(line)
     newline = remove_punctuation(newline)
@@ -247,15 +277,32 @@ def hapax_legomena(line):
     word_list = newline.split(" ")
 
     for word in word_list:
-        if freq_dict.get(word) == None:
-            freq_dict[word] = 1
+        if word_freq_dict.get(word) == None:
+            word_freq_dict[word] = 1
         else:
-            freq_dict[word] = freq_dict[word] + 1
+            word_freq_dict[word] = word_freq_dict[word] + 1
 
     hpx_lgmn = 0
 
-    for key in freq_dict.keys():
-        if freq_dict[key] == 1:
+    for key in word_freq_dict.keys():
+        if word_freq_dict[key] == 1:
             hpx_lgmn = hpx_lgmn + 1
 
     return hpx_lgmn
+
+# ----------- GRAMMAR ----------
+
+# Number of unique Part Of Speech Tags
+def num_diff_pos(line):
+    newline = remove_num(line)
+    newline = remove_punctuation(newline)
+    newline = remove_stop_words(newline)
+    newline = remove_all_large_space(newline)
+
+    doc = nlp(newline)
+    pos_set = set()
+
+    for i in range(1, len(newline.split(" "))):
+        pos_set.add(doc[i].pos_)
+
+    return len(pos_set)
