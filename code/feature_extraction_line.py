@@ -3,6 +3,8 @@
 # Run on the assumptions that the line has never been processed before,
 # Hence clean up is done accordingly per line
 
+# Might need a freq_dict helper
+
 import re
 from data_cleanup_line import *
 import pandas as pd
@@ -226,9 +228,34 @@ def SMOG_readability(line):
         if ((word_sylb_dict.get(word) != None) and (word_sylb_dict[word] >= 3)):
             polysylb_word = polysylb_word + 1
     
-    print(polysylb_word)
+    # print(polysylb_word)
     smog = float(3 + math.sqrt(polysylb_word))
     return smog
 
 
-        
+# ---------- LEXICAL DIVERSITY ----------
+def type_token_ratio(line):
+    return float(num_diff_word_stop(line)/num_any_word(line))
+
+def hapax_legomena(line):
+
+    freq_dict = {}
+
+    newline = remove_num(line)
+    newline = remove_punctuation(newline)
+    newline = remove_all_large_space(newline)
+    word_list = newline.split(" ")
+
+    for word in word_list:
+        if freq_dict.get(word) == None:
+            freq_dict[word] = 1
+        else:
+            freq_dict[word] = freq_dict[word] + 1
+
+    hpx_lgmn = 0
+
+    for key in freq_dict.keys():
+        if freq_dict[key] == 1:
+            hpx_lgmn = hpx_lgmn + 1
+
+    return hpx_lgmn

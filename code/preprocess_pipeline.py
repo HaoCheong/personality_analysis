@@ -41,20 +41,17 @@ def required_preprocess(essays):
 # Pipeline for feature extraction
 def feature_extract(essays):
 
-    
+    # Pure Lexical Features
     essays = process_column(essays, 'TEXT', 'num_of_char', num_of_char) # Always missing 2 2568
     essays = process_column(essays, 'TEXT', 'num_any_words', num_any_word) # Correct 658, always 1 off
     essays = process_column(essays, 'TEXT','num_long_words', num_long_words) # Correct 109, 3 off, 112 after diff check
     essays = process_column(essays, 'TEXT','num_short_words', num_short_words) # Counterd 548, 2 off
-
     essays = process_column(essays, 'TEXT','num_sentences', num_sentences) # Correct 38
     essays = process_column(essays, 'TEXT', "num_diff_word_stop", num_diff_word_stop) # Correct 272
     essays = process_column(essays, 'TEXT', "num_diff_word_nstop", num_diff_word_nstop)
     essays = process_column(essays, 'TEXT', 'avg_sentence_length',avg_sentence_length)
     essays = process_column(essays, 'TEXT', 'avg_word_length',avg_word_length)
-
     essays = process_column(essays, 'TEXT', 'num_syllables',num_syllables)
-
     essays = process_column(essays, 'TEXT', 'most_freq_word_length',most_freq_word_length) 
     essays = process_column(essays, 'TEXT', 'most_freq_sentence_length',most_freq_sentence_length)
 
@@ -64,6 +61,11 @@ def feature_extract(essays):
     essays = process_column(essays, 'TEXT', 'automated_readability_index',automated_readability_index)
     essays = process_column(essays, 'TEXT', 'LIX_readability',LIX_readability)
     essays = process_column(essays, 'TEXT', 'dale_chall_readability',dale_chall_readability)
+    essays = process_column(essays, 'TEXT', 'SMOG_readability',SMOG_readability)
+
+    # Lexical Diversity
+    essays = process_column(essays, 'TEXT', 'type_token_ratio',type_token_ratio)
+    essays = process_column(essays, 'TEXT', 'hapax_legomena',hapax_legomena)
 
     return essays
 
@@ -77,7 +79,8 @@ def main():
         processed_essays = pd.read_csv('pre_processed.csv', encoding='utf-8')
     
     # test_line = processed_essays['TEXT'][5]
-    # print(SMOG_readability(test_line))
+    # print(hapax_legomena(test_line))
+    # processed_essays['TEXT'][5]
     final_processed = feature_extract(processed_essays)
     print(final_processed.head(10))
 
