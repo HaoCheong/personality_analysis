@@ -22,6 +22,7 @@ def get_word_sylb_dict():
     print("USED")
     word_sylb_dict = {}
     sylb_df = pd.read_csv('syllable_count_ndup.csv')
+
     for index, row in sylb_df.iterrows():
         # print(row[2])
         word_sylb_dict[row[1]] = row[2]
@@ -31,73 +32,108 @@ def get_word_sylb_dict():
 ## GLOBAL
 word_sylb_dict = get_word_sylb_dict()
 
-
 # Number of characters (including stop words + punctuation)
-
 def num_of_char(line):
     newline = remove_all_space(line)
+    noc = len(newline)
+
     return len(newline)
 
 # Number of long words, defined in regex
 def num_long_words(line):
+
     newline = remove_num(line)
     newline = remove_punctuation(line)
     newline = re.sub(r'\b\w{1,5}\b', '', newline)
     newline = remove_all_large_space(newline)
-    return len(newline.split(" "))
+
+    nlw = len(newline.split(" "))
+
+    return nlw
 
 # Number of short words, defined in regex
 def num_short_words(line):
+
+
     newline = remove_num(line)
     newline = remove_punctuation(line)
     newline = re.sub(r'\b\w{6,}\b', '', newline)
     newline = remove_all_large_space(newline)
-    return len(newline.split(" "))
+
+    nsw = len(newline.split(" "))
+
+    return nsw
 
 # Number of any words (needs clean up)
 def num_any_word(line):
+
     newline = remove_num(line)
     newline = remove_punctuation(newline)
     newline = remove_all_large_space(newline)
-    return len(newline.split(" "))
+
+    naw = len(newline.split(" "))
+
+    return naw
 
 # Number of any words (not including stop words)
 def num_nstop_word(line):
+
     newline = remove_num(line)
     newline = remove_punctuation(newline)
     newline = remove_stop_words(newline)
     newline = remove_all_large_space(newline)
-    return len(newline.split(" "))
+
+    nnw = len(newline.split(" "))
+
+    return nnw
 
 # Number of different word + stop words
 def num_diff_word_stop(line):
+
     newline = remove_num(line)
     newline = remove_punctuation(newline)
     newline = remove_all_large_space(newline)
-    return len(set(newline.split(" ")))
+
+    ndws = len(set(newline.split(" ")))
+
+    return ndws
 
 # Number of different word + no stop words
 def num_diff_word_nstop(line):
+
     newline = remove_num(line)
     newline = remove_punctuation(newline)
     newline = remove_stop_words(newline)
     newline = remove_all_large_space(newline)
-    return len(set(newline.split(" ")))
+
+    ndwn = len(set(newline.split(" ")))
+
+    return ndwn
 
 # Number of sentences (Tokenised based on ". ")
 # Need to include ?, ..., !, and other enders
 def num_sentences(line):
-    return len(re.split(r'[.!?]{1}', line))
+
+    ns = len(re.split(r'[.!?]{1}', line))
+
+    return ns
 
 # Average sentences length (Total word count / sentence count)
 def avg_sentence_length(line):
-    return float(num_any_word(line))/(num_sentences(line))
+
+    asl = float(num_any_word(line))/(num_sentences(line))
+
+    return asl
 
 def avg_word_length(line):
-    return float(num_of_char(line)/num_any_word(line))
+
+    awl = float(num_of_char(line)/num_any_word(line))
+
+    return awl
 
 # Most frequent word length
 def most_freq_word_length(line):
+
     newline = remove_num(line)
     newline = remove_punctuation(newline)
     newline = remove_all_large_space(newline)
@@ -117,11 +153,12 @@ def most_freq_word_length(line):
         if freq_dict[key] > max_val:
             max_val = freq_dict[key]
             max_key = key
-    
+
     return max_key
 
 # Most frequent sentence length
 def most_freq_sentence_length(line):
+
     sentence_array = re.split(r'[.!?]{1}', line)
     sen_freq_dict = {}
     for sen in sentence_array:
@@ -137,27 +174,29 @@ def most_freq_sentence_length(line):
         if sen_freq_dict[key] > max_val and key != 1: #Mitigates the . . . sentences but might need future adjusting
             max_val = sen_freq_dict[key]
             max_key = key
-    
+
     return max_key
 
 # Number of stop words
 def num_stop_words(line):
+
     newline = remove_num(line)
     newline = remove_punctuation(newline)
     newline = remove_all_large_space(newline)
 
     word_list = newline.split(" ")
 
-    stop_count = 0 
-    stop_list = []
+    stop_count = 0
 
     for word in word_list:
         if word in stop:
-            stop_list.append(word)
+            stop_count = stop_count + 1
 
-    return stop_list 
+    return stop_count
+
 # Number of syllables, known words (Might need changing)
 def num_syllables(line):
+
     newline = remove_num(line)
     newline = remove_punctuation(newline)
     newline = remove_stop_words(newline)
@@ -174,6 +213,7 @@ def num_syllables(line):
 
 # Fletch Kincaid Grade Level
 def flesch_kincaid_grade_level(line):
+
     n_nstop = num_nstop_word(line)
     n_sen = num_sentences(line)
     n_sylb = num_syllables(line)
@@ -181,10 +221,12 @@ def flesch_kincaid_grade_level(line):
     comp_1 = 0.39 * float(n_nstop/n_sen)
     comp_2 = 11.8 * float(n_sylb/n_nstop)
     fkgl = float(comp_1 + comp_2 - 15.59)
+
     return fkgl
 
 # Fletch Reading Ease Index
 def flesch_reading_ease(line):
+
     n_nstop = num_nstop_word(line)
     n_sen = num_sentences(line)
     n_sylb = num_syllables(line)
@@ -192,10 +234,12 @@ def flesch_reading_ease(line):
     comp_2 = 84.6 * float(n_sylb/n_nstop)
 
     fre = float(206.835 - comp_1 - comp_2)
+
     return fre
 
 # Automated Readability Measure
 def automated_readability_index(line):
+
     n_char = num_of_char(line)
     n_any_word = num_any_word(line)
     n_sen = num_sentences(line)
@@ -204,10 +248,12 @@ def automated_readability_index(line):
     comp_2 = 0.5 * float(n_any_word/n_sen)
 
     ari = float(comp_1 + comp_2 - 21.43)
+
     return ari
 
 # LIX readability measure
 def LIX_readability(line):
+
     n_any_word = num_any_word(line)
     n_long_word = num_long_words(line)
     n_period = len(re.split(r'([\.:]|(\s[a-z]))',line))
@@ -220,6 +266,7 @@ def LIX_readability(line):
 
 # Dale Chall Reasabilitty Measure
 def dale_chall_readability(line):
+
     newline = remove_num(line)
     newline = remove_punctuation(newline)
     newline = remove_all_large_space(newline)
@@ -241,11 +288,12 @@ def dale_chall_readability(line):
     dcr = comp_1 + comp_2
     if (diffc_perc > 5):
         dcr = dcr + 3.6365 
-    
+
     return dcr
 
 # Simple Measure of Gobbledygook Readability Measure
 def SMOG_readability(line):
+
     polysylb_word = 0
     newline = remove_num(line)
     newline = remove_punctuation(newline)
@@ -257,6 +305,7 @@ def SMOG_readability(line):
             polysylb_word = polysylb_word + 1
     
     smog = float(3 + math.sqrt(polysylb_word))
+
     return smog
 
 
@@ -264,7 +313,10 @@ def SMOG_readability(line):
 
 # The ratio of unique words used
 def type_token_ratio(line):
-    return float(num_diff_word_stop(line)/num_any_word(line))
+
+    ttr = float(num_diff_word_stop(line)/num_any_word(line))
+
+    return ttr
 
 # Hapax Legomena, count number of words used once
 def hapax_legomena(line):
@@ -294,6 +346,7 @@ def hapax_legomena(line):
 
 # Number of unique Part Of Speech Tags
 def num_diff_pos(line):
+
     newline = remove_num(line)
     newline = remove_punctuation(newline)
     newline = remove_stop_words(newline)
@@ -305,4 +358,6 @@ def num_diff_pos(line):
     for i in range(1, len(newline.split(" "))):
         pos_set.add(doc[i].pos_)
 
-    return len(pos_set)
+    ndp = len(pos_set)
+
+    return ndp
