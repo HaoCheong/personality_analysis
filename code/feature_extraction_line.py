@@ -6,6 +6,7 @@
 # Might need a freq_dict helper
 
 # Singleton pattern might reduce processing
+# Shift code to a row processesing, not a column processing (caching can reduce processing time)
 
 import re
 from data_cleanup_line import *
