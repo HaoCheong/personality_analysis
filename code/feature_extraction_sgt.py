@@ -5,7 +5,7 @@
 
 # Might need a freq_dict helper
 
-# Singleton pattern might reduce processing
+# SINGLETON pattern USED
 
 import re
 from data_cleanup_line import *
@@ -29,12 +29,16 @@ def get_word_sylb_dict():
 
     return word_sylb_dict
 
-singleton_dict = None
-def refresh_singleton():
-    singleton_dict.clear()
-
 ## GLOBAL
 word_sylb_dict = get_word_sylb_dict()
+
+singleton_dict = {}
+line_pos_dict = {}
+# print("LPT: ", line_pos_dict)
+
+def refresh_cache():
+    singleton_dict.clear()
+    line_pos_dict.clear()
 
 # Number of characters (including stop words + punctuation)
 def num_of_char(line):
@@ -444,13 +448,16 @@ def hapax_legomena(line):
 
     return hpx_lgmn
 
-# ----------- GRAMMAR ----------
+# ----------- GRAMMAR/POS ----------
 
-# Number of unique Part Of Speech Tags
-def num_diff_pos(line):
+# Gets parts of speech dictionary
+def get_pos_dict(line):
 
-    if singleton_dict.get('num_diff_pos') is not None:
-        return singleton_dict['num_diff_pos']
+    global line_pos_dict
+
+    if (line_pos_dict):
+        # print("LOOP?")
+        return line_pos_dict
 
     newline = remove_num(line)
     newline = remove_punctuation(newline)
@@ -458,12 +465,56 @@ def num_diff_pos(line):
     newline = remove_all_large_space(newline)
 
     doc = nlp(newline)
-    pos_set = set()
+    pos_dict = {}
 
     for i in range(1, len(newline.split(" "))):
-        pos_set.add(doc[i].pos_)
+        if (pos_dict.get(doc[i].pos_) is None):
+            pos_dict[doc[i].pos_] = 1
+        else: 
+            pos_dict[doc[i].pos_] += 1
+    
+    return pos_dict
 
-    ndp = len(pos_set)
-    singleton_dict['num_diff_pos'] = ndp
-
+# Number of unique Part Of Speech Tags
+def num_diff_pos(line):
+    pos_dict = get_pos_dict(line)
+    ndp = len(pos_dict.keys())
     return ndp
+
+def num_pos_coord_conj(line):
+    pos_dict = get_pos_dict(line)
+    # print("pos_dict.get('CCONJ')", pos_dict.get('CCONJ'))
+    return pos_dict.get('CCONJ') if pos_dict.get('CCONJ') is not None else 0
+
+def num_pos_num(line):
+    pos_dict = get_pos_dict(line)
+    return pos_dict.get('NUM') if pos_dict.get('NUM') is not None else 0
+
+def num_pos_det(line):
+    pos_dict = get_pos_dict(line)
+    return pos_dict.get('DET') if pos_dict.get('DET') is not None else 0
+
+def num_pos_sub_conj(line):
+    pos_dict = get_pos_dict(line)
+    return pos_dict.get('SCONJ') if pos_dict.get('SCONJ') is not None else 0
+
+def num_pos_adj(line):
+    pos_dict = get_pos_dict(line)
+    return pos_dict.get('ADJ') if pos_dict.get('ADJ') is not None else 0
+
+def num_pos_aux(line):
+    pos_dict = get_pos_dict(line)
+    return pos_dict.get('AUX') if pos_dict.get('AUX') is not None else 0
+
+def num_pos_noun(line):
+    pos_dict = get_pos_dict(line)
+    return pos_dict.get('NOUN') if pos_dict.get('NOUN') is not None else 0
+
+def num_pos_adv(line):
+    pos_dict = get_pos_dict(line)
+    return pos_dict.get('ADV') if pos_dict.get('ADV') is not None else 0
+
+def num_pos_verb(line):
+    pos_dict = get_pos_dict(line)
+    return pos_dict.get('VERB') if pos_dict.get('VERB') is not None else 0
+

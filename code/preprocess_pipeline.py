@@ -1,5 +1,5 @@
 from data_cleanup_line import *
-from feature_extraction_line import *
+from feature_extraction_sgt import *
 
 import numpy as np
 import pandas as pd
@@ -27,11 +27,11 @@ def process_feature_pipeline(essays):
 
     # For each row, cache the text
     for index in range(len(essays.index)):
+        refresh_cache()
         row_text = essays.at[index,'TEXT']
-        # refresh_singleton()
         # Process along the feature pipeline
         for feature in feature_pipeline:
-            essays.at[index,feature[0]]  = feature[1](row_text)
+            essays.at[index,feature[0]] = feature[1](row_text)
     
     return essays
 
@@ -86,6 +86,16 @@ def feature_extract_row(processed_essays):
 
     add_feature('num_diff_pos',num_diff_pos)
 
+    add_feature('num_pos_coord_conj',num_pos_coord_conj)
+    add_feature('num_pos_num',num_pos_num)
+    add_feature('num_pos_det',num_pos_det)
+    add_feature('num_pos_sub_conj',num_pos_sub_conj)
+    add_feature('num_pos_adj',num_pos_adj)
+    add_feature('num_pos_aux',num_pos_aux)
+    add_feature('num_pos_noun',num_pos_noun)
+    add_feature('num_pos_adv',num_pos_adv)
+    add_feature('num_pos_verb',num_pos_verb)
+
     return process_feature_pipeline(processed_essays)
 
 # Pipeline for feature extraction
@@ -138,12 +148,12 @@ def main():
     # test_line = processed_essays['TEXT'][5]
     # print(num_stop_words(test_line))
 
-    reduced_essays = processed_essays.iloc[:3,:]
+    # reduced_essays = processed_essays.iloc[:3,:]
 
-    final_processed = feature_extract_column(processed_essays)
+    final_processed = feature_extract_row(processed_essays)
     print(final_processed.head(10))
 
-    # final_processed.to_csv('final_v1.csv', sep=',', encoding='utf-8', index = False)
+    final_processed.to_csv('final_v2.csv', sep=',', encoding='utf-8', index = False)
 
 if __name__ == "__main__":
     main()

@@ -55,7 +55,6 @@ def num_long_words(line):
 # Number of short words, defined in regex
 def num_short_words(line):
 
-
     newline = remove_num(line)
     newline = remove_punctuation(line)
     newline = re.sub(r'\b\w{6,}\b', '', newline)
@@ -343,22 +342,29 @@ def hapax_legomena(line):
 
     return hpx_lgmn
 
-# ----------- GRAMMAR ----------
+# ----------- GRAMMAR/POS ----------
 
-# Number of unique Part Of Speech Tags
-def num_diff_pos(line):
-
+# Gets parts of speech dictionary
+def get_pos_dict(line):
     newline = remove_num(line)
     newline = remove_punctuation(newline)
     newline = remove_stop_words(newline)
     newline = remove_all_large_space(newline)
 
     doc = nlp(newline)
-    pos_set = set()
+    pos_dict = {}
 
     for i in range(1, len(newline.split(" "))):
-        pos_set.add(doc[i].pos_)
+        if (pos_dict.get(doc[i].pos_) is None):
+            pos_dict[doc[i].pos_] = 1
+        else: 
+            pos_dict[doc[i].pos_] += 1
 
-    ndp = len(pos_set)
+    return pos_dict
 
+line_pos_dict = get_pos_dict()
+
+# Number of unique Part Of Speech Tags
+def num_diff_pos(line):
+    ndp = len(line_pos_dict.keys())
     return ndp
