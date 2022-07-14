@@ -17,31 +17,50 @@ from nltk.corpus import stopwords
 nlp = sp.load('en_core_web_lg')
 stop = stopwords.words('english')
 
-# --------Helpers--------
+# -------- HELPER FUNCTION --------
 def get_word_sylb_dict():
-    print("USED")
+    '''Get the word-syllable key value pair dictionarry
+    Average O(1) time for syllable processing per line
+    '''
+
     word_sylb_dict = {}
     sylb_df = pd.read_csv('syllable_count_ndup.csv')
 
     for index, row in sylb_df.iterrows():
-        # print(row[2])
         word_sylb_dict[row[1]] = row[2]
+
+    print(" -- Word Syllable Dictionary Processed -- ")
 
     return word_sylb_dict
 
-## GLOBAL
+# ---------- GLOBAL PRE-PROCESSED DATA ----------
+
+# Global Word Sylalble Dict
 word_sylb_dict = get_word_sylb_dict()
 
+# Cached values of textual features per line
 singleton_dict = {}
+
+# Cached values of Parts Of Speech Tagging per line
 line_pos_dict = {}
-# print("LPT: ", line_pos_dict)
 
 def refresh_cache():
+    '''Refresh global cached values 
+    '''
     singleton_dict.clear()
     line_pos_dict.clear()
 
-# Number of characters (including stop words + punctuation)
-def num_of_char(line):
+# ---------- TEXTUAL FEATURE EXTRACTORS  ----------
+
+def num_of_char(line:str) -> int:
+    '''Number of characters in the line
+    Stop words and punctuations are included
+
+    Parameters
+    ----------
+    line : str
+        The line being feature extracted
+    '''
 
     if singleton_dict.get('num_of_char') is not None:
         return singleton_dict['num_of_char'] 
@@ -53,8 +72,19 @@ def num_of_char(line):
 
     return len(newline)
 
-# Number of long words, defined in regex
-def num_long_words(line):
+def num_long_words(line:str) -> int:
+
+    ''' Number of long words in a line
+
+    - Stop words included
+    - Long words: Greater than 5 characters
+
+    Parameters
+    ----------
+    line : str
+        The line being feature extracted
+
+    '''
 
     if singleton_dict.get('num_long_words') is not None:
         return singleton_dict['num_long_words'] 
@@ -69,8 +99,20 @@ def num_long_words(line):
 
     return nlw
 
-# Number of short words, defined in regex
-def num_short_words(line):
+def num_short_words(line:str) -> int:
+
+    ''' Number of short words in a line
+
+    - Stop words included
+    - Short words: Less than or equal to 5 characters
+
+    Parameters
+    ----------
+    line : str
+        The line being feature extracted
+
+    
+    '''
 
     if singleton_dict.get('num_short_words') is not None:
         return singleton_dict['num_short_words'] 
@@ -85,8 +127,20 @@ def num_short_words(line):
 
     return nsw
 
-# Number of any words (needs clean up)
-def num_any_word(line):
+def num_any_word(line:str) -> int:
+
+    '''Number of words in a line
+
+    - Repeated words included
+    - Stop Words included
+
+    Parameters
+    ----------
+    line : str
+        The line being feature extracted
+
+    
+    '''
 
     if singleton_dict.get('num_any_word') is not None:
         return singleton_dict['num_any_word'] 
@@ -100,9 +154,18 @@ def num_any_word(line):
 
     return naw
 
-# Number of any words (not including stop words)
-def num_nstop_word(line):
+def num_nstop_word(line:str) -> int:
 
+    '''Number of stop words in the line
+
+    - Repeated stop words included
+
+    Parameters
+    ----------
+    line : str
+        The line being feature extracted
+
+    '''
     if singleton_dict.get('num_nstop_word') is not None:
         return singleton_dict['num_nstop_word'] 
 
@@ -116,8 +179,18 @@ def num_nstop_word(line):
 
     return nnw
 
-# Number of different word + stop words
-def num_diff_word_stop(line):
+def num_diff_word_stop(line:str) -> int:
+
+    '''Number of unique words in the line
+
+    - Stop words included
+
+    Parameters
+    ----------
+    line : str
+        The line being feature extracted
+
+    '''
 
     if singleton_dict.get('num_diff_word_stop') is not None:
         return singleton_dict['num_diff_word_stop'] 
@@ -131,8 +204,16 @@ def num_diff_word_stop(line):
 
     return ndws
 
-# Number of different word + no stop words
-def num_diff_word_nstop(line):
+def num_diff_word_nstop(line:str) -> int:
+
+    '''Number of unique words in the line, exluding stop words
+
+    Parameters
+    ----------
+    line : str
+        The line being feature extracted
+
+    '''
 
     if singleton_dict.get('num_diff_word_nstop') is not None:
         return singleton_dict['num_diff_word_nstop'] 
@@ -147,9 +228,21 @@ def num_diff_word_nstop(line):
 
     return ndwn
 
-# Number of sentences (Tokenised based on ". ")
-# Need to include ?, ..., !, and other enders
-def num_sentences(line):
+def num_sentences(line:str) -> int:
+
+    '''Number of sentences in the line
+
+    - Sentence are deliminated by:
+        - Full Stops: .
+        - Exclaimation Mark: !
+        - Question Mark: ?
+
+    Parameters
+    ----------
+    line : str
+        The line being feature extracted
+
+    '''
 
     if singleton_dict.get('num_sentences') is not None:
         return singleton_dict['num_sentences']
@@ -159,8 +252,15 @@ def num_sentences(line):
 
     return ns
 
-# Average sentences length (Total word count / sentence count)
-def avg_sentence_length(line):
+def avg_sentence_length(line:str) -> float:
+    '''Average sentence length in line
+
+    Parameters
+    ----------
+    line : str
+        The line being feature extracted
+
+    '''
     if singleton_dict.get('avg_sentence_length') is not None:
         return singleton_dict['avg_sentence_length']
 
@@ -169,7 +269,17 @@ def avg_sentence_length(line):
 
     return asl
 
-def avg_word_length(line):
+def avg_word_length(line:str) -> float:
+
+    '''Average word length in line
+
+    Parameters
+    ----------
+    line : str
+        The line being feature extracted
+
+    '''
+
     if singleton_dict.get('avg_word_length') is not None:
         return singleton_dict['avg_word_length']
 
@@ -178,8 +288,16 @@ def avg_word_length(line):
 
     return awl
 
-# Most frequent word length
-def most_freq_word_length(line):
+def most_freq_word_length(line:str) -> int:
+
+    '''Most frequent word length in the line
+
+    Parameters
+    ----------
+    line : str
+        The line being feature extracted
+
+    '''
 
     if singleton_dict.get('most_freq_word_length') is not None:
         return singleton_dict['most_freq_word_length']
@@ -188,6 +306,7 @@ def most_freq_word_length(line):
     newline = remove_punctuation(newline)
     newline = remove_all_large_space(newline)
     
+    # Process a dictionary of word length and their occurances
     word_array = newline.split(" ")
     freq_dict = {}
     for word in word_array:
@@ -199,6 +318,7 @@ def most_freq_word_length(line):
     max_val = 0
     max_key = ""
 
+    # Finds the word with the greatest occurance
     for key in freq_dict.keys():
         if freq_dict[key] > max_val:
             max_val = freq_dict[key]
@@ -208,16 +328,25 @@ def most_freq_word_length(line):
 
     return max_key
 
-# Most frequent sentence length
-def most_freq_sentence_length(line):
+def most_freq_sentence_length(line:str) -> int:
+
+    '''Most frequent sentence length in the line
+
+    Parameters
+    ----------
+    line : str
+        The line being feature extracted
+
+    '''
 
     if singleton_dict.get('most_freq_sentence_length') is not None:
         return singleton_dict['most_freq_sentence_length']
 
     sentence_array = re.split(r'[.!?]{1}', line)
+
+    # Process a dictionary of sentences length and their occurances
     sen_freq_dict = {}
     for sen in sentence_array:
-        # print(sen)
         if sen_freq_dict.get(len(sen)) == None:
             sen_freq_dict[len(sen)] = 1
         else:
@@ -225,6 +354,8 @@ def most_freq_sentence_length(line):
     
     max_val = 0
     max_key = ""
+
+    # Finds the word length with the greatest occurance
     for key in sen_freq_dict.keys():
         if sen_freq_dict[key] > max_val and key != 1: #Mitigates the . . . sentences but might need future adjusting
             max_val = sen_freq_dict[key]
@@ -234,8 +365,16 @@ def most_freq_sentence_length(line):
 
     return max_key
 
-# Number of stop words
-def num_stop_words(line):
+def num_stop_words(line:str) -> int:
+
+    '''Number of stop words in the line
+
+    Parameters
+    ----------
+    line : str
+        The line being feature extracted
+
+    '''
 
     if singleton_dict.get('num_stop_words') is not None:
         return singleton_dict['num_stop_words']
@@ -256,8 +395,16 @@ def num_stop_words(line):
 
     return stop_count
 
-# Number of syllables, known words (Might need changing)
-def num_syllables(line):
+def num_syllables(line:str) -> int:
+
+    '''Number of syllables in the line
+
+    Parameters
+    ----------
+    line : str
+        The line being feature extracted
+
+    '''
 
     if singleton_dict.get('num_syllables') is not None:
         return singleton_dict['num_syllables']
@@ -276,10 +423,18 @@ def num_syllables(line):
 
     return total_sylb_count
 
-# --------READABILITY INDEX--------
+# ---------- READABILITY INDEX ----------
 
-# Fletch Kincaid Grade Level
-def flesch_kincaid_grade_level(line):
+def flesch_kincaid_grade_level(line:str) -> float:
+
+    '''Returns the Flesch Kincaid Grade Level of the line
+
+    Parameters
+    ----------
+    line : str
+        The line being feature extracted
+
+    '''
 
     if singleton_dict.get('flesch_kincaid_grade_level') is not None:
         return singleton_dict['flesch_kincaid_grade_level']
@@ -297,7 +452,16 @@ def flesch_kincaid_grade_level(line):
     return fkgl
 
 # Fletch Reading Ease Index
-def flesch_reading_ease(line):
+def flesch_reading_ease(line:str) -> float:
+
+    '''Returns the Flesch Reading Ease of the line
+
+    Parameters
+    ----------
+    line : str
+        The line being feature extracted
+
+    '''
 
     if singleton_dict.get('flesch_reading_ease') is not None:
         return singleton_dict['flesch_reading_ease']
@@ -315,7 +479,16 @@ def flesch_reading_ease(line):
     return fre
 
 # Automated Readability Measure
-def automated_readability_index(line):
+def automated_readability_index(line:str) -> float:
+
+    '''Returns the Automated Readibility Index of the line
+
+    Parameters
+    ----------
+    line : str
+        The line being feature extracted
+
+    '''
 
     if singleton_dict.get('automated_readability_index') is not None:
         return singleton_dict['automated_readability_index']
@@ -334,7 +507,16 @@ def automated_readability_index(line):
     return ari
 
 # LIX readability measure
-def LIX_readability(line):
+def LIX_readability(line:str) -> float:
+
+    '''Returns the LIX readibility metric of the line
+
+    Parameters
+    ----------
+    line : str
+        The line being feature extracted
+
+    '''
 
     if singleton_dict.get('LIX_readability') is not None:
         return singleton_dict['LIX_readability']
@@ -352,7 +534,16 @@ def LIX_readability(line):
     return lix
 
 # Dale Chall Reasabilitty Measure
-def dale_chall_readability(line):
+def dale_chall_readability(line:str) -> float:
+
+    '''Returns the Dale Chall Readability of the line
+
+    Parameters
+    ----------
+    line : str
+        The line being feature extracted
+
+    '''
 
     if singleton_dict.get('dale_chall_readability') is not None:
         return singleton_dict['dale_chall_readability']
@@ -383,8 +574,16 @@ def dale_chall_readability(line):
 
     return dcr
 
-# Simple Measure of Gobbledygook Readability Measure
-def SMOG_readability(line):
+def SMOG_readability(line:str) -> float:
+
+    '''Returns the SMOG readability of the line
+
+    Parameters
+    ----------
+    line : str
+        The line being feature extracted
+
+    '''
 
     if singleton_dict.get('SMOG_readability') is not None:
         return singleton_dict['SMOG_readability']
@@ -408,8 +607,16 @@ def SMOG_readability(line):
 
 # ---------- LEXICAL DIVERSITY ----------
 
-# The ratio of unique words used
-def type_token_ratio(line):
+def type_token_ratio(line:str) -> float:
+
+    '''Returns the ratio of unique words to total words
+
+    Parameters
+    ----------
+    line : str
+        The line being feature extracted
+
+    '''
 
     if singleton_dict.get('type_token_ratio') is not None:
         return singleton_dict['type_token_ratio']
@@ -419,8 +626,16 @@ def type_token_ratio(line):
 
     return ttr
 
-# Hapax Legomena, count number of words used once
-def hapax_legomena(line):
+def hapax_legomena(line:str) -> float:
+
+    '''Returns the Hapax Legomena of the line
+
+    Parameters
+    ----------
+    line : str
+        The line being feature extracted
+
+    '''
 
     if singleton_dict.get('hapax_legomena') is not None:
         return singleton_dict['hapax_legomena']
@@ -450,13 +665,20 @@ def hapax_legomena(line):
 
 # ----------- GRAMMAR/POS ----------
 
-# Gets parts of speech dictionary
-def get_pos_dict(line):
+def get_pos_dict(line:str) -> dict:
+
+    '''Process the line into a dictionary of Part of Speech tag
+
+    Parameters
+    ----------
+    line : str
+        The line being feature extracted
+
+    '''
 
     global line_pos_dict
 
     if (line_pos_dict):
-        # print("LOOP?")
         return line_pos_dict
 
     newline = remove_num(line)
@@ -473,48 +695,148 @@ def get_pos_dict(line):
         else: 
             pos_dict[doc[i].pos_] += 1
     
+    line_pos_dict = pos_dict
+
     return pos_dict
 
-# Number of unique Part Of Speech Tags
-def num_diff_pos(line):
+def num_diff_pos(line:str) -> int:
+
+    '''Return the number of unique Parts of Speech tags in the line
+
+    Parameters
+    ----------
+    line : str
+        The line being feature extracted
+
+    '''
+
     pos_dict = get_pos_dict(line)
     ndp = len(pos_dict.keys())
     return ndp
 
-def num_pos_coord_conj(line):
+def num_pos_coord_conj(line:str) -> int:
+
+    '''Return the number of Coordinating Conjunction tags in the line
+
+    Parameters
+    ----------
+    line : str
+        The line being feature extracted
+
+    '''
+
     pos_dict = get_pos_dict(line)
-    # print("pos_dict.get('CCONJ')", pos_dict.get('CCONJ'))
     return pos_dict.get('CCONJ') if pos_dict.get('CCONJ') is not None else 0
 
-def num_pos_num(line):
+def num_pos_num(line:str) -> int:
+
+    '''Return the number of Numeral tags in the line
+
+    Parameters
+    ----------
+    line : str
+        The line being feature extracted
+
+    '''
+
     pos_dict = get_pos_dict(line)
     return pos_dict.get('NUM') if pos_dict.get('NUM') is not None else 0
 
-def num_pos_det(line):
+def num_pos_det(line:str):
+
+    '''Return the number of Determiner tags in the line
+
+    Parameters
+    ----------
+    line : str
+        The line being feature extracted
+
+    '''
+
     pos_dict = get_pos_dict(line)
     return pos_dict.get('DET') if pos_dict.get('DET') is not None else 0
 
-def num_pos_sub_conj(line):
+def num_pos_sub_conj(line:str) -> int:
+
+    '''Return the number of Subordinating/preposition tags in the line
+
+    Parameters
+    ----------
+    line : str
+        The line being feature extracted
+
+    '''
+
     pos_dict = get_pos_dict(line)
     return pos_dict.get('SCONJ') if pos_dict.get('SCONJ') is not None else 0
 
-def num_pos_adj(line):
+def num_pos_adj(line:str) -> int:
+
+    '''Return the number of Adjective tags in the line
+
+    Parameters
+    ----------
+    line : str
+        The line being feature extracted
+
+    '''
+
     pos_dict = get_pos_dict(line)
     return pos_dict.get('ADJ') if pos_dict.get('ADJ') is not None else 0
 
-def num_pos_aux(line):
+def num_pos_aux(line:str) -> int:
+
+    '''Return the number of Modal Auxiliary tags in the line
+
+    Parameters
+    ----------
+    line : str
+        The line being feature extracted
+
+    '''
+
     pos_dict = get_pos_dict(line)
     return pos_dict.get('AUX') if pos_dict.get('AUX') is not None else 0
 
-def num_pos_noun(line):
+def num_pos_noun(line:str) -> int:
+
+    '''Return the number of Noun tags in the line
+
+    Parameters
+    ----------
+    line : str
+        The line being feature extracted
+
+    '''
+
     pos_dict = get_pos_dict(line)
     return pos_dict.get('NOUN') if pos_dict.get('NOUN') is not None else 0
 
-def num_pos_adv(line):
+def num_pos_adv(line:str):
+
+    '''Return the number of Adverb tags in the line
+
+    Parameters
+    ----------
+    line : str
+        The line being feature extracted
+
+    '''
+
     pos_dict = get_pos_dict(line)
     return pos_dict.get('ADV') if pos_dict.get('ADV') is not None else 0
 
-def num_pos_verb(line):
+def num_pos_verb(line:str) -> int:
+
+    '''Return the number of Verb tags in the line
+
+    Parameters
+    ----------
+    line : str
+        The line being feature extracted
+
+    '''
+
     pos_dict = get_pos_dict(line)
     return pos_dict.get('VERB') if pos_dict.get('VERB') is not None else 0
 
