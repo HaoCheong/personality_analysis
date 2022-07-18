@@ -12,6 +12,9 @@ from nltk.metrics.distance import jaccard_distance
 from nltk.util import ngrams
 from nltk.corpus import words
 
+from spellchecker import SpellChecker
+from textblob import TextBlob
+
 stop = stopwords.words('english')
 correct_words = words.words()
 
@@ -45,7 +48,6 @@ def remove_weird_char(line):
 def spelling_fix(line):
     newline = remove_all_large_space(line)
     line_token = newline.split(" ")
-    # print(line_token)
     corrected = []
     for word in line_token:
         if (len(word) > 3):
@@ -55,6 +57,12 @@ def spelling_fix(line):
             corrected.append(word)
         
     return " ".join(corrected)
+
+# Text blob assisted Spellchecking, similar issues, hard for system to tell apart coloquilaism vs others (NOT USED)
+def spelling_fix_tb(line):
+    new_line = TextBlob(line)
+    return new_line.correct()
+    
 
 
 

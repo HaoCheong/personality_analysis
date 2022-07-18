@@ -145,13 +145,14 @@ def main():
     else:
         processed_essays = pd.read_csv('pre_processed.csv', encoding='utf-8')
     
-    # test_line = processed_essays['TEXT'][5]
-    # print(num_stop_words(test_line))
+    test_line = processed_essays['TEXT'][5]
+    spelling_fix_tb(test_line)
 
-    reduced_essays = processed_essays.iloc[:3,:]
+    # Test reduced essays
+    # reduced_essays = processed_essays.iloc[:3,:]
 
-    final_processed = feature_extract_row(processed_essays)
-    print(final_processed.head(10))
+    # final_processed = feature_extract_row(processed_essays)
+    # print(final_processed.head(10))
 
     # final_processed.to_csv('final_v2.csv', sep=',', encoding='utf-8', index = False)
 
