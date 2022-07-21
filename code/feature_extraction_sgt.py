@@ -3,9 +3,7 @@
 # Run on the assumptions that the line has never been processed before,
 # Hence clean up is done accordingly per line
 
-# Might need a freq_dict helper
-
-# SINGLETON pattern USED
+# SINGLETON pattern USED, caching reduced time complexity
 
 import re
 from data_cleanup_line import *
