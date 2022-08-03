@@ -627,6 +627,7 @@ def type_token_ratio(line:str) -> float:
 def hapax_legomena(line:str) -> float:
 
     '''Returns the Hapax Legomena of the line
+    Hapax Legonmena: Number of words that appear once
 
     Parameters
     ----------
