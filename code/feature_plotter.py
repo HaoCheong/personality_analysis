@@ -1,3 +1,5 @@
+# Require massive rewrites in terms of readability 
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt

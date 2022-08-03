@@ -1,3 +1,6 @@
+# Require massive rewrites in terms of readability
+# Variable names need to be reconsidered
+
 import sys
 
 import numpy as np
@@ -89,6 +92,25 @@ def z_score(df_cols):
 
     return df
 
+def t_test_feat(feature, no_df, yes_df):
+    no_field_df = no_df[feature].tolist()
+    yes_field_df = yes_df[feature].tolist()
+    return stats.ttest_ind(no_field_df,yes_field_df, equal_var=True)[0]
+
+def t_test(df_cols):
+    df = pd.DataFrame(df_cols)
+    df.columns=['features']
+
+    # Filter columns into Y and N, based on personality
+    for trait in ['cEXT','cNEU','cAGR','cCON','cOPN']:
+        no_df = feature_df.loc[feature_df[trait] == 'n']
+        yes_df = feature_df.loc[feature_df[trait] == 'y']
+
+        # For each feature
+        df[f'{trait}_t_stat'] = df['features'].apply(lambda x: t_test_feat(x,no_df,yes_df))
+
+    return df
+
 # Analyse individual feature
 def analyse(cols, name, func, reproc):
     if (reproc):
@@ -111,8 +133,10 @@ def main():
 
     # All extracted features
     reduced = feature_df.columns[6:36]
+    
     z_score(reduced).to_csv(f'./z_score_{csv_file}', sep=',', encoding='utf-8')
-    # feature_analysis(reduced, True)
+    t_test(reduced).to_csv(f'./analysis_data/feature_t_test.csv', sep=',', encoding='utf-8', index=False)
+    feature_analysis(reduced, True)
 
     # ps_corr = analysis_df['ps_corr']
     # ps_corr_signf = ps_corr[abs(ps_corr['ps_corr']) > 0.5]
@@ -122,8 +146,6 @@ def main():
     # skw_normal = skw[skw['skewness'] < 1]
     # skw_normal = skw_normal[skw_normal['skewness'] > -1]
     # print(skw_normal)
-
-    # print(kurtosis(np.asarray(feature_df['num_of_char'])))
 
     print(" ====== DONE ====== ")
 
