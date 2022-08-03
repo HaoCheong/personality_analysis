@@ -67,7 +67,7 @@ def ktosis(df_cols):
 
 # Calculate Covariance
 def covariance(df_cols):
-    df = feature_df(['feature_1', 'feature_2'])
+    df = pd.DataFrame(columns = ['feature_1', 'feature_2'])
 
     i = 0
     while (i < len(df_cols)):
@@ -82,21 +82,24 @@ def covariance(df_cols):
             j = j + 1
 
         i = i + 1
+
     return df
 
 # Return z-score of the values instead
 def z_score(df_cols):
     df = feature_df[['TEXT','cEXT','cNEU','cAGR','cCON','cOPN']]
     for col in df_cols:
-        df[f'{col}_z_score'] = stats.zscore(np.asarray(feature_df[col]))
+        df[col] = stats.zscore(np.asarray(feature_df[col]))
 
     return df
 
+#Individual Feature T-test (Helper for t_test()) 
 def t_test_feat(feature, no_df, yes_df):
     no_field_df = no_df[feature].tolist()
     yes_field_df = yes_df[feature].tolist()
-    return stats.ttest_ind(no_field_df,yes_field_df, equal_var=True)[0]
+    return stats.ttest_ind(no_field_df,yes_field_df, equal_var=True)[0]        
 
+# T-test independent analysis of every feature
 def t_test(df_cols):
     df = pd.DataFrame(df_cols)
     df.columns=['features']
@@ -110,6 +113,20 @@ def t_test(df_cols):
         df[f'{trait}_t_stat'] = df['features'].apply(lambda x: t_test_feat(x,no_df,yes_df))
 
     return df
+
+# Filter results of a t-test and returns significant list
+def t_test_comparer(significance):
+
+    # For all personalitty trait features, find the features which have significance
+    df = pd.read_csv('./analysis_data/feature_t_test_p_val.csv')
+    res_df = pd.DataFrame(columns = ['traits', 'signf_features'])
+    for trait in df.columns[1:6]:
+        reduced_df = df[['features',trait]].copy()
+        filtered_df = reduced_df[reduced_df[trait] <= significance]
+        res = {'traits':f"{trait}", 'signf_features':f"{filtered_df['features'].tolist()}"}
+        res_df = res_df.append(res, ignore_index=True)
+
+    return res_df
 
 # Analyse individual feature
 def analyse(cols, name, func, reproc):
@@ -132,20 +149,16 @@ def feature_analysis(cols, reproc = False):
 def main():
 
     # All extracted features
-    reduced = feature_df.columns[6:36]
+    # reduced = feature_df.columns[6:36]
+
+    # # Feature Analysis
+    # t_test(reduced).to_csv(f'./analysis_data/feature_t_test_stat.csv', sep=',', encoding='utf-8', index=False)
+    t_test_comparer(0.05).to_csv('./analysis_data/significant_features.csv', sep=',', encoding='utf-8', index = False)
+    # feature_analysis(reduced, False)
+
+    # z_score(reduced).to_csv(f'./z_score_{csv_file}', sep=',', encoding='utf-8')
+
     
-    z_score(reduced).to_csv(f'./z_score_{csv_file}', sep=',', encoding='utf-8')
-    t_test(reduced).to_csv(f'./analysis_data/feature_t_test.csv', sep=',', encoding='utf-8', index=False)
-    feature_analysis(reduced, True)
-
-    # ps_corr = analysis_df['ps_corr']
-    # ps_corr_signf = ps_corr[abs(ps_corr['ps_corr']) > 0.5]
-    # print(ps_corr_signf)
-
-    # skw = analysis_df['skw']
-    # skw_normal = skw[skw['skewness'] < 1]
-    # skw_normal = skw_normal[skw_normal['skewness'] > -1]
-    # print(skw_normal)
 
     print(" ====== DONE ====== ")
 

@@ -7,73 +7,27 @@ import seaborn as sns
 import sys
 sns.set_theme(style="darkgrid")
 
-''' ALL FEATURE
-cEXT
-cNEU
-cAGR
-cCON
-cOPN
 
-num_of_char
-num_any_words
-num_long_words
-num_short_words
-num_sentences
-num_diff_word_stop
-num_diff_word_nstop
-avg_sentence_length
-avg_word_length
-num_syllables
-most_freq_word_length
-most_freq_sentence_length
-
-flesch_reading_ease
-flesch_kincaid_grade_level
-automated_readability_index
-LIX_readability
-dale_chall_readability
-SMOG_readability
-type_token_ratio
-hapax_legomena
-
-num_diff_pos
-num_pos_coord_conj
-num_pos_num
-num_pos_det
-num_pos_sub_conj
-num_pos_adj
-num_pos_aux
-num_pos_noun
-num_pos_adv
-num_pos_verb
-'''
-
-# print(sys.argv[1])
-if len(sys.argv) != 2:
-    print('USAGE: python3 feature_plotter.py <csv_file>')
-    exit()
-
-csv_file = sys.argv[1]
-feature_df = pd.read_csv(csv_file, index_col = 0)
 
 # Simple plotting field/column
-def dis_plot(field):
+def dis_plot(field, feature_df):
     sns.displot(feature_df[field])
 
 # Simple plotting field/column
-def hist_plot(field):
+def hist_plot(field, feature_df):
     sns.histplot(feature_df[field])
 
 # Plot 2 fields against each other
-def two_col_pairplot(field1, field2):
+def two_col_pairplot(field1, field2, feature_df):
     sns.relplot(x=field1, y=field2, data=feature_df)
 
 # Plot every field again every field
-def multi_pairplot(reduced_col):
-    sns.pairplot(feature_df[reduced_col], markers=["o", "s"])
+def multi_pairplot(reduced_col, filename, feature_df):
+    sns.pairplot(feature_df[reduced_col], markers=["o", "s"], corner=True)
+    plt.savefig(f'./plots/{filename}_plot')
 
-# Plot every column in col_names again each other
-def mass_plotter(col_names):
+# Plot every field again every field into separate files
+def indv_plotter(col_names):
     i = 0
     while (i < len(col_names)):
         j = i + 1
@@ -86,7 +40,7 @@ def mass_plotter(col_names):
         i = i + 1
 
 # Bar plot for single field
-def bar_plot(field):
+def bar_plot(field,feature_df):
     sns.barplot(feature_df[field])
 
 # Generate 
@@ -96,18 +50,58 @@ def solo_feature_plot(col_names, name, func):
         plt.savefig('./plots/' + name + '/' + field)
 
 def main():
-    all_features = feature_df.columns[6:36].tolist()
-    # reduced = feature_df[['flesch_kincaid_grade_level','avg_l']].copy()
-    # mass_plotter(reduced.columns)
-    multi_pairplot(all_features)
-    # plt.savefig('./plots/' + plot_filename)
-    plt.savefig('./plots/z_score_plot')
 
+    # ====== File Usage ======
+    fv_csv_file = 'final_v2.csv'
+    zsc_csv_file = 'z_score_final_v2.csv'
 
+    fv_feature_df = pd.read_csv(fv_csv_file, index_col = 0)
+    zsc_feature_df = pd.read_csv(zsc_csv_file, index_col = 0)
+
+    print(zsc_feature_df.head(10))
+
+    # ====== Feature Collection ======
+    fv_all_features = fv_feature_df.columns[6:36].tolist()
+    fv_directly_quantified_features = fv_feature_df[['num_of_char','num_any_words','num_sentences','num_syllables']].columns.tolist()
+    fv_readability_features = fv_feature_df[['flesch_reading_ease','flesch_kincaid_grade_level','automated_readability_index','LIX_readability','dale_chall_readability','SMOG_readability']].columns.tolist()
+    fv_pos_features = fv_feature_df[['num_diff_pos','num_pos_coord_conj','num_pos_num','num_pos_det','num_pos_sub_conj','num_pos_adj','num_pos_aux','num_pos_noun','num_pos_adv','num_pos_verb']].columns.tolist()
+
+    zsc_all_features = zsc_feature_df.columns[6:36].tolist()
+    zsc_directly_quantified_features = zsc_feature_df[['num_of_char','num_any_words','num_sentences','num_syllables']].columns.tolist()
+    zsc_readability_features = zsc_feature_df[['flesch_reading_ease','flesch_kincaid_grade_level','automated_readability_index','LIX_readability','dale_chall_readability','SMOG_readability']].columns.tolist()
+    zsc_pos_features = zsc_feature_df[['num_diff_pos','num_pos_coord_conj','num_pos_num','num_pos_det','num_pos_sub_conj','num_pos_adj','num_pos_aux','num_pos_noun','num_pos_adv','num_pos_verb']].columns.tolist()
+
+    # plt.savefig('./plots/z_score_plot')
+
+    # ====== Multi plotter ======
+    # multi_pairplot(all_features.columns)
+
+    # ====== Complete Plotter ======
+    # multi_pairplot(fv_all_features,'fv2_all_features',fv_feature_df)
+    # multi_pairplot(fv_directly_quantified_features,'fv2_directly_quantified_features',fv_feature_df)
+    # multi_pairplot(fv_readability_features,'fv2_readability_features',fv_feature_df)
+    # multi_pairplot(fv_pos_features,'fv2_pos_features',fv_feature_df)
+
+    # multi_pairplot(zsc_all_features,'zsc_all_features',zsc_feature_df)
+    # multi_pairplot(zsc_directly_quantified_features,'zsc_directly_quantified_features',zsc_feature_df)
+    # multi_pairplot(zsc_readability_features,'zsc_readability_features',zsc_feature_df)
+    # multi_pairplot(zsc_pos_features,'zsc_pos_features',zsc_feature_df)
+
+    # ====== Feature Solo Plotting ======
     # solo_feature_plot(all_features, "displots", dis_plot)
     # solo_feature_plot(all_features, "histplots", hist_plot)
 
+    # ====== Individual Plotting ======
     # dis_plot('num_of_char')
+    two_col_pairplot('cEXT', 'num_sentences', fv_feature_df)
+    plt.savefig('./plots/cEXT_num_sentences')
+
+    two_col_pairplot('cEXT', 'avg_word_length', fv_feature_df)
+    plt.savefig('./plots/cEXT_avg_word_length')
+
+    two_col_pairplot('cEXT', 'LIX_readability', fv_feature_df)
+    plt.savefig('./plots/cEXT_LIX_readability')
+
     # plt.savefig('./plots/temp')
 
 if __name__ == "__main__":
