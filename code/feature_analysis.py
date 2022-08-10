@@ -1,5 +1,6 @@
 # Require massive rewrites in terms of readability
 # Variable names need to be reconsidered
+from typing import List
 
 import sys
 
@@ -19,13 +20,24 @@ if len(sys.argv) != 2:
     print('USAGE: python3 feature_plotter.py <csv_file>')
     exit()
 
-# Global
-csv_file = sys.argv[1]
-feature_df = pd.read_csv(csv_file, index_col = 0)
-analysis_df = {}
+# GLOBAL FEATURES
+csv_file = sys.argv[1] # CSV file name
+feature_df = pd.read_csv(csv_file, index_col = 0) # Feature dataframe of the csv
+analysis_df = {} # Caching analysis data (REDUNDANT)
 
-# Calculate pearson correlation coefficient
-def pearson_correlation(df_cols):
+def pearson_correlation(df_cols:List[str]) -> pd.DataFrame:
+    '''Calculate the Pearson Correlation for a given list of features
+
+    Parameters
+    ----------
+    df_cols : List[str]
+        The list of features to find the correlation for
+
+    Returns
+    ----------
+    df : pd.DataFrame
+        A dataframe with all the processed data
+    '''
     df = pd.DataFrame(columns = ['feature_1', 'feature_2'])
 
     i = 0
@@ -44,29 +56,73 @@ def pearson_correlation(df_cols):
     
     return df
 
-# Calculate Skewness
-def skewness(df_cols):
+def skewness(df_cols:List[str]) -> pd.DataFrame:
+    '''Calculate the Skewness for a given list of features
+
+    Parameters
+    ----------
+    df_cols : List[str]
+        The list of features to find the skewness for
+
+    Returns
+    ----------
+    df : pd.DataFrame
+        A dataframe with all the skewness data
+    '''
     df = pd.DataFrame(df_cols)
     df.columns=['features']
     df['skewness'] = df['features'].apply(lambda x: skew(np.asarray(feature_df[x].tolist())))
     return df
 
-# Calculate Variance
-def variance(df_cols):
+def variance(df_cols:List[str]) -> pd.DataFrame:
+    '''Calculate the Variance for a given list of features
+
+    Parameters
+    ----------
+    df_cols : List[str]
+        The list of features to find the variance for
+
+    Returns
+    ----------
+    df : pd.DataFrame
+        A dataframe with all the variance data
+    '''
     df = pd.DataFrame(df_cols)
     df.columns=['features']
     df['variance'] = df['features'].apply(lambda x: np.var(np.asarray(feature_df[x].tolist())))
     return df
 
-# Calculate Kurtosis
-def ktosis(df_cols):
+def ktosis(df_cols:List[str]) -> pd.DataFrame:
+    '''Calculate the Kurtosis for a given list of features
+
+    Parameters
+    ----------
+    df_cols : List[str]
+        The list of features to find the kurtosis for
+
+    Returns
+    ----------
+    df : pd.DataFrame
+        A dataframe with all the kurtosis data
+    '''
     df = pd.DataFrame(df_cols)
     df.columns=['features']
     df['kurtosis'] = df['features'].apply(lambda x: kurtosis(feature_df[x].tolist()))
     return df
 
-# Calculate Covariance
-def covariance(df_cols):
+def covariance(df_cols:List[str]) -> pd.DataFrame:
+    '''Calculate the Covariance for a given list of features
+
+    Parameters
+    ----------
+    df_cols : List[str]
+        The list of features to find the covariance for
+
+    Returns
+    ----------
+    df : pd.DataFrame
+        A dataframe with all the covariance data
+    '''
     df = pd.DataFrame(columns = ['feature_1', 'feature_2'])
 
     i = 0
@@ -85,22 +141,56 @@ def covariance(df_cols):
 
     return df
 
-# Return z-score of the values instead
-def z_score(df_cols):
+def z_score(df_cols:List[str]) -> pd.DataFrame:
+    '''Standardist given set of features into their z_scores
+
+    Parameters
+    ----------
+    df_cols : List[str]
+        The list of features to find the z_score for for
+
+    Returns
+    ----------
+    df : pd.DataFrame
+        A dataframe with all the data converted to z_scores
+    '''
     df = feature_df[['TEXT','cEXT','cNEU','cAGR','cCON','cOPN']]
     for col in df_cols:
         df[col] = stats.zscore(np.asarray(feature_df[col]))
 
     return df
 
-#Individual Feature T-test (Helper for t_test()) 
-def t_test_feat(feature, no_df, yes_df):
+def t_test_feat(feature:str, no_df:pd.DataFrame, yes_df:pd.DataFrame) -> float:
+    '''HELPER: Conduct a T-Test on an individual feature against their y column and n column
+
+    Parameters
+    ----------
+    df_cols : List[str]
+        The feature having its T-test calculated
+
+    Returns
+    ----------
+    stats.ttest_ind(no_field_df,yes_field_df, equal_var=True)[0] : float
+        The statistical significance of the t-test
+    '''
     no_field_df = no_df[feature].tolist()
     yes_field_df = yes_df[feature].tolist()
-    return stats.ttest_ind(no_field_df,yes_field_df, equal_var=True)[0]        
+    print(stats.ttest_ind(no_field_df,yes_field_df, equal_var=True))
+    return stats.ttest_ind(no_field_df,yes_field_df, equal_var=True)[1]
 
-# T-test independent analysis of every feature
-def t_test(df_cols):
+def t_test(df_cols:List[str]) -> pd.DataFrame:
+    '''Conduct a T-Test on a list of features against their y column and n column
+
+    Parameters
+    ----------
+    df_cols : List[str]
+        The list of features to conduct their t-test against
+
+    Returns
+    ----------
+    df : pd.DataFrame
+        A dataframe with all the t-test result for each given feature
+    '''
     df = pd.DataFrame(df_cols)
     df.columns=['features']
 
@@ -114,22 +204,43 @@ def t_test(df_cols):
 
     return df
 
-# Filter results of a t-test and returns significant list
-def t_test_comparer(significance):
+def t_test_comparer(significance:float) -> pd.DataFrame:
+    '''Filter t-test based on a significance, return significant features
 
-    # For all personalitty trait features, find the features which have significance
+    Parameters
+    ----------
+    significance : float
+        The significance to be filtered against. Anything greater will be filtered out
+
+    Returns
+    ----------
+    df : pd.DataFrame
+        A dataframe with all the personality traits and each of their most significant features
+    '''
     df = pd.read_csv('./analysis_data/feature_t_test_p_val.csv')
     res_df = pd.DataFrame(columns = ['traits', 'signf_features'])
     for trait in df.columns[1:6]:
         reduced_df = df[['features',trait]].copy()
         filtered_df = reduced_df[reduced_df[trait] <= significance]
-        res = {'traits':f"{trait}", 'signf_features':f"{filtered_df['features'].tolist()}"}
+        res = {'traits':f"{trait}", 'signf_features':f"{','.join(filtered_df['features'].tolist())}"}
         res_df = res_df.append(res, ignore_index=True)
 
     return res_df
 
-# Analyse individual feature
-def analyse(cols, name, func, reproc):
+def analyse(cols:List[str], name:str, func, reproc:bool) -> None:
+    '''Wrapper for feature analysis functions
+
+    Parameters
+    ----------
+    cols : List[str]
+        The features which are to be processed
+    name : str
+        The name of the csv file to place the process data in
+    func : function
+        The analyses function to be ran
+    reproc : bool
+        Reprocess flag to indicate if the analyse should be recalculated
+    '''
     if (reproc):
         result = func(cols)
         result.to_csv('./analysis_data/'+name+'.csv', sep=',', encoding='utf-8', index = False)
@@ -139,7 +250,17 @@ def analyse(cols, name, func, reproc):
         analysis_df[name] = result
 
 # Analyse all the feature, given columns and reprocess boolean
-def feature_analysis(cols, reproc = False):
+def feature_analysis(cols:List[str], reproc:bool = False):
+    '''Wrapper for calling all feature analysis functions
+
+    Parameters
+    ----------
+    cols : List[str]
+        The features which are to be processed
+    reproc : bool
+        Reprocess flag to indicate if the analyse should be recalculated
+        Default to False
+    '''
     analyse(cols, 'ps_corr', pearson_correlation, reproc)
     analyse(cols, 'skw', skewness, reproc)
     analyse(cols, 'vari', variance, reproc)
@@ -149,16 +270,16 @@ def feature_analysis(cols, reproc = False):
 def main():
 
     # ====== All extracted features ======
-    # reduced = feature_df.columns[6:36]
+    reduced = feature_df.columns[6:36]
 
-    # # Feature Analysis
+    # ====== Feature Analysis ======
+    
     # t_test(reduced).to_csv(f'./analysis_data/feature_t_test_stat.csv', sep=',', encoding='utf-8', index=False)
+    # t_test(reduced).to_csv(f'./analysis_data/feature_t_test_p_val.csv', sep=',', encoding='utf-8', index=False)
     t_test_comparer(0.05).to_csv('./analysis_data/significant_features.csv', sep=',', encoding='utf-8', index = False)
     # feature_analysis(reduced, False)
 
     # z_score(reduced).to_csv(f'./z_score_{csv_file}', sep=',', encoding='utf-8')
-
-    
 
     print(" ====== DONE ====== ")
 
