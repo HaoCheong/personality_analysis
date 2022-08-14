@@ -15,14 +15,14 @@ from sklearn.svm import LinearSVC
 from sklearn.pipeline import Pipeline
 from sklearn import metrics
 
-def modelCreator(text, personality, pipeline):
+def modelCreator(text, personality, pipeline, name):
     X = text
     y = personality
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33,random_state=42)
 
     text_clf = pipeline.fit(X_train, y_train)
     predictions = text_clf.predict(X_test)
-    print(metrics.accuracy_score(y_test, predictions))
+    print(f'{name}: {metrics.accuracy_score(y_test, predictions)}')
 
     return text_clf
 
@@ -54,21 +54,21 @@ def main():
 
 
     pipeline = Pipeline([('tfidf', TfidfVectorizer()),('clf',LinearSVC())])
-    concatModel = modelCreator(essays['TEXT'], essays['cTRAITS'], pipeline)
-    # extModel = modelCreator(essays['TEXT'], essays['cEXT'], pipeline)
-    # neuModel = modelCreator(essays['TEXT'], essays['cNEU'], pipeline)
-    # agrModel = modelCreator(essays['TEXT'], essays['cAGR'], pipeline)
-    # conModel = modelCreator(essays['TEXT'], essays['cCON'], pipeline)
-    # opnModel = modelCreator(essays['TEXT'], essays['cOPN'], pipeline)
+    # concatModel = modelCreator(essays['TEXT'], essays['cTRAITS'], pipeline)
+    extModel = modelCreator(essays['TEXT'], essays['cEXT'], pipeline, 'Extraversion')
+    neuModel = modelCreator(essays['TEXT'], essays['cNEU'], pipeline, 'Neuroticism')
+    agrModel = modelCreator(essays['TEXT'], essays['cAGR'], pipeline, 'Agreeableness')
+    conModel = modelCreator(essays['TEXT'], essays['cCON'], pipeline, 'Conscientiousness')
+    opnModel = modelCreator(essays['TEXT'], essays['cOPN'], pipeline, 'Openness')
 
     prediction_text = ["I rather stay indoors with my friends"]
     prediction_dict = {}
-    prediction_dict['traits'] = concatModel.predict(prediction_text)[0]
-    # prediction_dict['ext'] = extModel.predict(prediction_text)[0]
-    # prediction_dict['neu'] = neuModel.predict(prediction_text)[0]
-    # prediction_dict['agr'] = agrModel.predict(prediction_text)[0]
-    # prediction_dict['con'] = conModel.predict(prediction_text)[0]
-    # prediction_dict['opn'] = opnModel.predict(prediction_text)[0]
+    # prediction_dict['traits'] = concatModel.predict(prediction_text)[0]
+    prediction_dict['ext'] = extModel.predict(prediction_text)[0]
+    prediction_dict['neu'] = neuModel.predict(prediction_text)[0]
+    prediction_dict['agr'] = agrModel.predict(prediction_text)[0]
+    prediction_dict['con'] = conModel.predict(prediction_text)[0]
+    prediction_dict['opn'] = opnModel.predict(prediction_text)[0]
 
     print(prediction_dict)
 

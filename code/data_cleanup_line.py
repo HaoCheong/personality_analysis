@@ -31,6 +31,7 @@ def replace_to_counterpart(line):
     # Replace unicode substitute with utf8 equiv
     newline = line.replace(u"\u2019", "'")
     newline = newline.replace(u"\u2018", "'")
+    newline = newline.replace(u"\u8216", "'")
     newline = newline.replace(u"\u8217", "'")
 
     # Replace - with " "
@@ -62,9 +63,6 @@ def spelling_fix(line):
 def spelling_fix_tb(line):
     new_line = TextBlob(line)
     return new_line.correct()
-    
-
-
 
 # Remove punctuation in the line, sentence_punc true includes sentence ender punctuation
 def remove_punctuation(line, sentence_end = True):

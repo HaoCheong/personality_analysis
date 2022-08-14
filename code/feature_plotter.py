@@ -176,26 +176,31 @@ def main():
 
     # ========== Perrsonality Comparison Plotting ==========
 
-    
-    # compare_hist_plot(cEXT_features, "cEXT", fv_feature_df)
-    # compare_hist_plot(cNEU_features, "cNEU", fv_feature_df)
-    # compare_hist_plot(cAGR_features, "cAGR", fv_feature_df)
-    # compare_hist_plot(cCON_features, "cCON", fv_feature_df)
-    # compare_hist_plot(cOPN_features, "cOPN", fv_feature_df)
+    compare_hist_plot(cEXT_features, "cEXT", fv_feature_df)
+    compare_hist_plot(cNEU_features, "cNEU", fv_feature_df)
+    compare_hist_plot(cAGR_features, "cAGR", fv_feature_df)
+    compare_hist_plot(cCON_features, "cCON", fv_feature_df)
+    compare_hist_plot(cOPN_features, "cOPN", fv_feature_df)
 
     # ======== Personality Features Radar ========
 
-    compare_radar_plot(cEXT_features, 'cEXT', zsc_feature_df)
-    compare_radar_plot(cNEU_features, 'cNEU', zsc_feature_df)
-    compare_radar_plot(cAGR_features, 'cAGR', zsc_feature_df)
-    compare_radar_plot(cCON_features, 'cCON', zsc_feature_df)
-    compare_radar_plot(cOPN_features, 'cOPN', zsc_feature_df)
+    # compare_radar_plot(cEXT_features, 'cEXT', zsc_feature_df)
+    # compare_radar_plot(cNEU_features, 'cNEU', zsc_feature_df)
+    # compare_radar_plot(cAGR_features, 'cAGR', zsc_feature_df)
+    # compare_radar_plot(cCON_features, 'cCON', zsc_feature_df)
+    # compare_radar_plot(cOPN_features, 'cOPN', zsc_feature_df)
 
     # compare_radar_plot(all_features, 'cEXT', zsc_feature_df)
     # compare_radar_plot(all_features, 'cNEU', zsc_feature_df)
     # compare_radar_plot(all_features, 'cAGR', zsc_feature_df)
     # compare_radar_plot(all_features, 'cCON', zsc_feature_df)
     # compare_radar_plot(all_features, 'cOPN', zsc_feature_df)
+
+    compare_radar_plot(significant_features, "cEXT", zsc_feature_df)
+    compare_radar_plot(significant_features, "cNEU", zsc_feature_df)
+    compare_radar_plot(significant_features, "cAGR", zsc_feature_df)
+    compare_radar_plot(significant_features, "cCON", zsc_feature_df)
+    compare_radar_plot(significant_features, "cOPN", zsc_feature_df)
 
     # ====== SANDBOX ======
 

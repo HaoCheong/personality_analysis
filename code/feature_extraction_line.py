@@ -362,9 +362,10 @@ def get_pos_dict(line):
 
     return pos_dict
 
-line_pos_dict = get_pos_dict()
+
 
 # Number of unique Part Of Speech Tags
 def num_diff_pos(line):
+    line_pos_dict = get_pos_dict(line)
     ndp = len(line_pos_dict.keys())
     return ndp
