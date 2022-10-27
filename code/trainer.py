@@ -52,4 +52,4 @@ if __name__ == "__main__":
         results.append([trait, accuracy])
 
     res_df = pd.DataFrame(results, columns = ['trait','accuracy'])
-    res_df.to_csv('acc_Sig_Anova_LR_3.csv', sep=',', encoding='utf-8', index = False) 
+    res_df.to_csv('./analysis_data/acc_Sig_Anova_LR_3.csv', sep=',', encoding='utf-8', index = False) 
