@@ -5,6 +5,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import seaborn as sns
+from scipy.stats import f_oneway
+import math
+import plotly.express as px
+
 sns.set_theme(style="darkgrid")
 
 # ========== Basic Plotting ==========
@@ -118,6 +122,8 @@ def main():
     cCON_features = t_test_sig_df.loc['cCON_t_stat','signf_features'].split(",")
     cOPN_features = t_test_sig_df.loc['cOPN_t_stat','signf_features'].split(",")
 
+    all_personality = ['cEXT','cNEU', 'cAGR', 'cCON', 'cOPN']
+
     # ====== Feature Collection ======
 
     all_features = fv_feature_df.columns[6:36].tolist()
@@ -176,11 +182,11 @@ def main():
 
     # ========== Perrsonality Comparison Plotting ==========
 
-    compare_hist_plot(cEXT_features, "cEXT", fv_feature_df)
-    compare_hist_plot(cNEU_features, "cNEU", fv_feature_df)
-    compare_hist_plot(cAGR_features, "cAGR", fv_feature_df)
-    compare_hist_plot(cCON_features, "cCON", fv_feature_df)
-    compare_hist_plot(cOPN_features, "cOPN", fv_feature_df)
+    # compare_hist_plot(cEXT_features, "cEXT", fv_feature_df)
+    # compare_hist_plot(cNEU_features, "cNEU", fv_feature_df)
+    # compare_hist_plot(cAGR_features, "cAGR", fv_feature_df)
+    # compare_hist_plot(cCON_features, "cCON", fv_feature_df)
+    # compare_hist_plot(cOPN_features, "cOPN", fv_feature_df)
 
     # ======== Personality Features Radar ========
 
@@ -196,16 +202,70 @@ def main():
     # compare_radar_plot(all_features, 'cCON', zsc_feature_df)
     # compare_radar_plot(all_features, 'cOPN', zsc_feature_df)
 
-    compare_radar_plot(significant_features, "cEXT", zsc_feature_df)
-    compare_radar_plot(significant_features, "cNEU", zsc_feature_df)
-    compare_radar_plot(significant_features, "cAGR", zsc_feature_df)
-    compare_radar_plot(significant_features, "cCON", zsc_feature_df)
-    compare_radar_plot(significant_features, "cOPN", zsc_feature_df)
+    # compare_radar_plot(significant_features, "cEXT", zsc_feature_df)
+    # compare_radar_plot(significant_features, "cNEU", zsc_feature_df)
+    # compare_radar_plot(significant_features, "cAGR", zsc_feature_df)
+    # compare_radar_plot(significant_features, "cCON", zsc_feature_df)
+    # compare_radar_plot(significant_features, "cOPN", zsc_feature_df)
+
+    # ======== ANOVA TEST ========
+
+    # all_anova = []
+    # sig_anova = []
+    # for feature in all_features:
+    #     feature_all_anova = [feature]
+    #     feature_sig_anova = [feature]
+    #     for trait in all_personality: 
+    #         n_df = fv_feature_df[fv_feature_df[trait] == 'n']
+    #         y_df = fv_feature_df[fv_feature_df[trait] == 'y']
+    #         res = f_oneway(n_df[feature], y_df[feature])
+    #         feature_all_anova.append(res[0])
+    #         feature_all_anova.append(res[1])
+            
+            
+    #         if (res[1] < 0.05):
+    #             feature_sig_anova.append(res[0])
+    #             feature_sig_anova.append(res[1])
+
+    #     all_anova.append(feature_all_anova)
+    #     sig_anova.append(feature_sig_anova)
+
+    # anova_df = pd.DataFrame(all_anova, columns = ['feature', 'cEXT_stats', 'cEXT_pvalue', 'cNEU_stats', 'cNEU_pvalue', 'cAGR_stats', 'cAGR_pvalue','cCON_stats', 'cCON_pvalue','cOPN_stats', 'cOPN_pvalue'])
+    # anova_df.to_csv('./analysis_data/one_way_anova.csv', sep=',', encoding='utf-8', index = False)
+
+    # sig_anova_df = pd.DataFrame(sig_anova, columns = ['feature', 'sig_cEXT_stats', 'sig_cEXT_pvalue', 'sig_cNEU_stats', 'sig_cNEU_pvalue', 'sig_cAGR_stats', 'sig_cAGR_pvalue','sig_cCON_stats', 'sig_cCON_pvalue','sig_cOPN_stats', 'sig_cOPN_pvalue'])
+    # sig_anova_df.to_csv('./analysis_data/sig_one_way_anova.csv', sep=',', encoding='utf-8', index = False)
+
+
+    # ======== ALL SIG FEATURE ANOVA ========
+
+    # all_trait_sig_feat = []
+    # for trait in all_personality:
+    #     traits_sig_feat = [trait]
+    #     sig_features_per_trait = sig_anova_df[['feature','sig_{}_pvalue'.format(trait)]]
+    #     sig_features = ""
+    #     for index, row in sig_features_per_trait.iterrows():
+    #         if (not math.isnan(row['sig_{}_pvalue'.format(trait)])):
+    #             sig_features = sig_features + ", " + row['feature']
+
+    #     traits_sig_feat.append(sig_features)
+    #     all_trait_sig_feat.append(traits_sig_feat)
+    
+    # print(all_trait_sig_feat)
+    # sig_feature_anova = pd.DataFrame(all_trait_sig_feat, columns = ['feature', 'sig_traits'])
+    # sig_feature_anova.to_csv('./analysis_data/trait_sig_feat_anova.csv', sep=',', encoding='utf-8', index = False)
+        
+    # ======== DB SIZE ASSESSMENT ========
+
+    # for trait in all_personality:
+    #     n_df = fv_feature_df[fv_feature_df[trait] == 'n']
+    #     y_df = fv_feature_df[fv_feature_df[trait] == 'y']
+    #     print("TRAIT: ", trait)
+    #     print("y_size: ", y_df.shape[0])
+    #     print("n_size: ", n_df.shape[0])
 
     # ====== SANDBOX ======
 
-    # n_cEXT_df = fv_feature_df[fv_feature_df['cEXT'] == 'n']
-    # y_cEXT_df = fv_feature_df[fv_feature_df['cEXT'] == 'y']
     # sns.pairplot(n_cEXT_df[all_features], markers=["o", "s"], corner=True)
     # sns.pairplot(y_cEXT_df[all_features], markers=["o", "s"], corner=True)
     # for feature in all_features:
@@ -214,7 +274,23 @@ def main():
     #     plt.savefig(f'./plots/temp/cEXT_{feature}_compare')
     #     plt.clf()
 
+    # for feature in all_features:
+    #     for traits in all_personality:
+
+    feature = 'num_of_char'
+    traits = 'cEXT'
+    trait_feature_meanplot = fv_feature_df[[feature,traits]]
     
+    fig = px.histogram(trait_feature_meanplot, x=traits, y=feature, barmode='group',
+             histfunc='avg',
+             height=400)
+
+    fig.show()
+    
+    # sns.barplot(data=trait_feature_meanplot, x=traits, y=feature, errorbar=('sd', 1))
+    # plt.savefig('./plots/barplots_2/{}_{}_mean_bar_plot'.format(traits, feature))
+    # plt.clf()
+
 
 if __name__ == "__main__":
     main()

@@ -154,7 +154,7 @@ def main():
     final_processed = feature_extract_row(processed_essays)
     print(final_processed.head(10))
 
-    # final_processed.to_csv('final_v2.csv', sep=',', encoding='utf-8', index = False)
+    final_processed.to_csv('final_v2.csv', sep=',', encoding='utf-8', index = False)
 
 if __name__ == "__main__":
     main()
