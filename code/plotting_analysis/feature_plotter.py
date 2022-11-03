@@ -226,6 +226,9 @@ def main():
     #         if (res[1] < 0.05):
     #             feature_sig_anova.append(res[0])
     #             feature_sig_anova.append(res[1])
+    #         else:
+    #             feature_sig_anova.append(-1)
+    #             feature_sig_anova.append(-1)
 
     #     all_anova.append(feature_all_anova)
     #     sig_anova.append(feature_sig_anova)
@@ -237,7 +240,7 @@ def main():
     # sig_anova_df.to_csv('./analysis_data/sig_one_way_anova.csv', sep=',', encoding='utf-8', index = False)
 
 
-    # ======== ALL SIG FEATURE ANOVA ========
+    # # ======== ALL SIG FEATURE ANOVA ========
 
     # all_trait_sig_feat = []
     # for trait in all_personality:
@@ -245,13 +248,13 @@ def main():
     #     sig_features_per_trait = sig_anova_df[['feature','sig_{}_pvalue'.format(trait)]]
     #     sig_features = ""
     #     for index, row in sig_features_per_trait.iterrows():
-    #         if (not math.isnan(row['sig_{}_pvalue'.format(trait)])):
+    #         if (row['sig_{}_pvalue'.format(trait)] != -1):
     #             sig_features = sig_features + ", " + row['feature']
 
     #     traits_sig_feat.append(sig_features)
     #     all_trait_sig_feat.append(traits_sig_feat)
     
-    # print(all_trait_sig_feat)
+    # # print(all_trait_sig_feat)
     # sig_feature_anova = pd.DataFrame(all_trait_sig_feat, columns = ['feature', 'sig_traits'])
     # sig_feature_anova.to_csv('./analysis_data/trait_sig_feat_anova.csv', sep=',', encoding='utf-8', index = False)
         
@@ -264,6 +267,21 @@ def main():
     #     print("y_size: ", y_df.shape[0])
     #     print("n_size: ", n_df.shape[0])
 
+    # ======== POINT PLOT SIGNIFICANCE ========
+    sig_feat_anova = pd.read_csv('./analysis_data/trait_sig_feat_anova.csv')
+    print(sig_feat_anova.head(10))
+    
+    for index, row in sig_feat_anova.iterrows():
+        trait = row[0]
+        features = row[1].split(", ")
+        for feature in features:
+            print(trait, feature)
+            trait_feature_meanplot = zsc_feature_df[[trait,feature]]
+
+            sns.pointplot(data=trait_feature_meanplot, x=trait, y=feature)
+            plt.savefig('./plots/pointplot_mean_zsc/{}_{}_mean_point_plot_zsc'.format(trait, feature))
+            plt.clf()
+
     # ====== SANDBOX ======
 
     # sns.pairplot(n_cEXT_df[all_features], markers=["o", "s"], corner=True)
@@ -274,23 +292,14 @@ def main():
     #     plt.savefig(f'./plots/temp/cEXT_{feature}_compare')
     #     plt.clf()
 
-    # for feature in all_features:
-    #     for traits in all_personality:
+    # trait = 'cEXT'
+    # feature = 'num_of_char'
 
-    feature = 'num_of_char'
-    traits = 'cEXT'
-    trait_feature_meanplot = fv_feature_df[[feature,traits]]
-    
-    fig = px.histogram(trait_feature_meanplot, x=traits, y=feature, barmode='group',
-             histfunc='avg',
-             height=400)
+    # trait_feature_meanplot = fv_feature_df[[trait,feature]]
 
-    fig.show()
-    
-    # sns.barplot(data=trait_feature_meanplot, x=traits, y=feature, errorbar=('sd', 1))
-    # plt.savefig('./plots/barplots_2/{}_{}_mean_bar_plot'.format(traits, feature))
+    # sns.pointplot(data=trait_feature_meanplot, x=trait, y=feature)
+    # plt.savefig('./plots/{}_{}_mean_point_plot_fv'.format(trait, feature))
     # plt.clf()
-
 
 if __name__ == "__main__":
     main()

@@ -22,7 +22,7 @@ stop = stopwords.words('english')
 def get_word_sylb_dict():
     print("USED")
     word_sylb_dict = {}
-    sylb_df = pd.read_csv('syllable_count_ndup.csv')
+    sylb_df = pd.read_csv('../syllable_count_ndup.csv')
 
     for index, row in sylb_df.iterrows():
         # print(row[2])
@@ -273,7 +273,7 @@ def dale_chall_readability(line):
     word_list = newline.split()
     
     diffc_count = 0
-    with open('../data_set_master/DaleChallEasyWordList.txt','r') as f:
+    with open('../../data_set_master/DaleChallEasyWordList.txt','r') as f:
         easy_words = f.read().splitlines()
         for word in word_list:
             if (word not in easy_words):
