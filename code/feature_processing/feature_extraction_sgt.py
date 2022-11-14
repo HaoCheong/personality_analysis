@@ -22,7 +22,7 @@ def get_word_sylb_dict():
     '''
 
     word_sylb_dict = {}
-    sylb_df = pd.read_csv('syllable_count_ndup.csv')
+    sylb_df = pd.read_csv('../syllable_count_ndup.csv')
 
     for index, row in sylb_df.iterrows():
         word_sylb_dict[row[1]] = row[2]
@@ -355,7 +355,7 @@ def most_freq_sentence_length(line:str) -> int:
 
     # Finds the word length with the greatest occurance
     for key in sen_freq_dict.keys():
-        if sen_freq_dict[key] > max_val and key != 1: #Mitigates the . . . sentences but might need future adjusting
+        if sen_freq_dict[key] > max_val and sen_freq_dict[key] > 0.0 and key != 1: #Mitigates the . . . sentences but might need future adjusting
             max_val = sen_freq_dict[key]
             max_key = key
     
@@ -552,7 +552,7 @@ def dale_chall_readability(line:str) -> float:
     word_list = newline.split()
     
     diffc_count = 0
-    with open('../data_set_master/DaleChallEasyWordList.txt','r') as f:
+    with open('../../data_set_master/DaleChallEasyWordList.txt','r') as f:
         easy_words = f.read().splitlines()
         for word in word_list:
             if (word not in easy_words):

@@ -7,16 +7,15 @@ from sklearn import metrics
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC, SVC
 
-def trait_feature_accuracy(feature, trait, source, rs=42):
+def trait_feature_accuracy(feature, trait, source, t_model, rs=42):
     X = source[feature]
     y = source[trait]
 
     X_train, X_test, y_train, y_test = train_test_split(X,y, test_size=0.3,random_state=rs)
 
-    model = SVC(kernel='poly',max_iter=8000)
-    model.fit(X_train,y_train)
+    t_model.fit(X_train,y_train)
 
-    predictions = model.predict(X_test)
+    predictions = t_model.predict(X_test)
     # df = pd.DataFrame(metrics.confusion_matrix(y_test,predictions))
     acc_scr = metrics.accuracy_score(y_test, predictions)
     # print("Feature: {}/Trait: {}/Acc_Score: {}".format(feature,trait,acc_scr))
@@ -43,13 +42,27 @@ if __name__ == "__main__":
     anova_features = pd.read_csv('../analysis_data/significant_feature/trait_sig_feat_anova.csv', index_col = 0)
     sig_feature_ttest = pd.read_csv('../analysis_data/significant_feature/significant_features.csv', index_col = 0)
 
+    max_iter = 8000
+    LR_model = LogisticRegression(max_iter=max_iter)
+    polySVC_model = SVC(kernel='poly',max_iter=max_iter)
+    LinSVC_model = LinearSVC(max_iter=max_iter)
+
     for trait in all_personality:
         print(trait)
         trait_sig_features = anova_features.loc[trait]['sig_features'].split(", ")
         # trait_sig_features = sig_feature_ttest.loc['{}_t_stat'.format(trait)]['signf_features'].split(",")
         # print(trait_sig_features)
-        accuracy = trait_feature_accuracy(trait_sig_features, trait, fv_feature_df, 88)
+        accuracy = trait_feature_accuracy(trait_sig_features, trait, fv_feature_df, LR_model, rs=12312)
         results.append([trait, accuracy])
 
     res_df = pd.DataFrame(results, columns = ['trait','accuracy'])
-    res_df.to_csv('../analysis_data/accuracy/acc_Sig_Anova_polySVC.csv', sep=',', encoding='utf-8', index = False) 
+    res_df.to_csv('../analysis_data/accuracy/acc_Sig_Anova_LR_3.csv', sep=',', encoding='utf-8', index = False)
+
+    # for trait in all_personality:
+    #     print(trait)
+    #     for feat in all_features:
+    #         accuracy = trait_feature_accuracy([feat], trait, fv_feature_df, LR_model)
+    #         results.append([trait, feat, accuracy])
+
+    # res_df = pd.DataFrame(results, columns = ['trait','feat','accuracy'])
+    # res_df.to_csv('../analysis_data/accuracy/acc_new_LR.csv', sep=',', encoding='utf-8', index = False)
